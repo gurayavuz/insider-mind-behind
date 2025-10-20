@@ -1,6 +1,11 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 
 export default function handler(req: VercelRequest, res: VercelResponse) {
+  console.log('🏠 [Root API] Request received:', {
+    method: req.method,
+    timestamp: new Date().toISOString()
+  });
+
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -9,6 +14,7 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).end();
   }
 
+  console.log('✅ [Root API] Sending API info');
   res.status(200).json({
     message: 'Cargo Tracking API',
     version: '1.0.0',
