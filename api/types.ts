@@ -22,6 +22,23 @@ export interface ErrorResponse {
   message: string;
 }
 
+// Integration Response Types
+export interface IntegrationMessage {
+  type: 'MESSAGE';
+  messageType: 'TEXT' | 'IMAGE' | 'CARD';
+  payloads: string[];
+}
+
+export interface IntegrationContent {
+  params: Record<string, any>;
+  modules: IntegrationMessage[];
+  fallback: boolean;
+}
+
+export interface IntegrationResponse {
+  content: IntegrationContent;
+}
+
 export const mockCargoData: Record<string, CargoInfo> = {
   'CARGO123': {
     cargoCode: 'CARGO123',

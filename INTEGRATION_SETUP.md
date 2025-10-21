@@ -44,19 +44,26 @@ Click on the **"Params"** tab and configure Query Params:
 #### Query Params
 Click the **"Add"** button and enter:
 
-| Key    | Value         |
-|--------|---------------|
-| `code` | `{{1.code}}`  |
+| Key      | Value           |
+|----------|-----------------|
+| `code`   | `{{1.code}}`    |
+| `format` | `integration`   |
 
 **Explanation:**
 - **Key:** `code` (the parameter name your API expects)
-- **Value:** This can be:
-  - A dynamic variable from previous steps (e.g., `{{1.code}}`)
-  - A static test value (e.g., `CARGO123`)
-  - Any variable from your workflow
+  - **Value:** This can be:
+    - A dynamic variable from previous steps (e.g., `{{1.code}}`)
+    - A static test value (e.g., `CARGO123`)
+    - Any variable from your workflow
+- **Key:** `format` (the response format)
+  - **Value:** `integration` for assistant platforms, or omit for standard JSON
+
+**Response Formats:**
+- **Standard Format** (omit `format` parameter): Returns traditional JSON
+- **Integration Format** (`format=integration`): Returns structured messages for chatbots/assistants
 
 **For Testing:**
-You can temporarily use a static value like `CARGO123` to test the connection.
+You can temporarily use a static value like `CARGO123` for code to test the connection.
 
 ---
 
@@ -334,6 +341,8 @@ Use these codes for testing:
 
 ## Response Structure
 
+### Standard Format (No `format` parameter)
+
 The API returns a JSON object with these fields:
 
 ```json
@@ -357,11 +366,44 @@ The API returns a JSON object with these fields:
 }
 ```
 
+### Integration Format (`format=integration`)
+
+When using `format=integration`, the API returns a structured response for chatbot/assistant platforms:
+
+```json
+{
+  "content": {
+    "params": {
+      "cargoCode": "string",
+      "status": "string",
+      "currentLocation": "string",
+      "estimatedDelivery": "string"
+    },
+    "modules": [
+      {
+        "type": "MESSAGE",
+        "messageType": "TEXT",
+        "payloads": ["formatted message with emoji"]
+      }
+    ],
+    "fallback": false
+  }
+}
+```
+
+**Benefits of Integration Format:**
+- ✅ Pre-formatted messages ready to display
+- ✅ State parameters for conversation management
+- ✅ Multiple message modules for better UX
+- ✅ Emoji-enriched formatting for readability
+
 You can map these fields to subsequent modules in your workflow.
 
 ---
 
 ## Mapping Response Data
+
+### Standard Format Variables
 
 After receiving the response, you can use these variables in next steps:
 
@@ -374,6 +416,21 @@ After receiving the response, you can use these variables in next steps:
 - `{{response.estimatedDelivery}}` - Delivery date
 - `{{response.weight}}` - Package weight
 - `{{response.trackingHistory}}` - Array of tracking events
+
+### Integration Format Variables
+
+When using `format=integration`:
+
+**State Parameters:**
+- `{{response.content.params.cargoCode}}` - The cargo code
+- `{{response.content.params.status}}` - Current status
+- `{{response.content.params.currentLocation}}` - Current location
+- `{{response.content.params.estimatedDelivery}}` - Delivery date
+
+**Message Modules:**
+- `{{response.content.modules}}` - Array of formatted messages
+- `{{response.content.modules[0].payloads[0]}}` - First message (summary)
+- `{{response.content.fallback}}` - Fallback flag (boolean)
 
 ---
 

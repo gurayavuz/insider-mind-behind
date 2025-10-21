@@ -46,8 +46,10 @@ Retrieves tracking information for a specific cargo code.
 | Parameter | Type   | Required | Description |
 |-----------|--------|----------|-------------|
 | code      | string | Yes      | The cargo tracking code |
+| format    | string | No       | Response format: 'integration' for assistant platforms, omit for standard JSON |
 
-#### Success Response (200 OK)
+#### Success Response (200 OK) - Standard Format
+When called without `format` parameter or with `format=standard`:
 ```json
 {
   "cargoCode": "CARGO123",
@@ -72,6 +74,43 @@ Retrieves tracking information for a specific cargo code.
       "description": "Package departed from origin"
     }
   ]
+}
+```
+
+#### Success Response (200 OK) - Integration Format
+When called with `format=integration`:
+```json
+{
+  "content": {
+    "params": {
+      "cargoCode": "CARGO123",
+      "status": "In Transit",
+      "currentLocation": "Sofia, Bulgaria",
+      "estimatedDelivery": "2025-10-25"
+    },
+    "modules": [
+      {
+        "type": "MESSAGE",
+        "messageType": "TEXT",
+        "payloads": [
+          "📦 Cargo Code: CARGO123\n📊 Status: In Transit\n📝 Description: Electronics Package\n🏭 Origin: Istanbul, Turkey\n🎯 Destination: Berlin, Germany\n📍 Current Location: Sofia, Bulgaria\n📅 Estimated Delivery: 2025-10-25\n⚖️ Weight: 25.5 kg"
+        ]
+      },
+      {
+        "type": "MESSAGE",
+        "messageType": "TEXT",
+        "payloads": ["📜 Tracking History:"]
+      },
+      {
+        "type": "MESSAGE",
+        "messageType": "TEXT",
+        "payloads": [
+          "⏰ 2025-10-20 09:00\n📍 Location: Sofia, Bulgaria\n📊 Status: In Transit\n💬 Package arrived at sorting facility"
+        ]
+      }
+    ],
+    "fallback": false
+  }
 }
 ```
 
@@ -126,8 +165,11 @@ For testing purposes, the following cargo codes are available:
 
 ### Using cURL
 ```bash
-# Track a cargo
+# Track a cargo (standard format)
 curl "http://localhost:3000/api/track?code=CARGO123"
+
+# Track a cargo (integration format)
+curl "http://localhost:3000/api/track?code=CARGO123&format=integration"
 
 # Health check
 curl "http://localhost:3000/health"
@@ -135,23 +177,70 @@ curl "http://localhost:3000/health"
 
 ### Using JavaScript (Fetch API)
 ```javascript
-// Track cargo
+// Track cargo (standard format)
 fetch('http://localhost:3000/api/track?code=CARGO123')
+  .then(response => response.json())
+  .then(data => console.log(data))
+  .catch(error => console.error('Error:', error));
+
+// Track cargo (integration format)
+fetch('http://localhost:3000/api/track?code=CARGO123&format=integration')
   .then(response => response.json())
   .then(data => console.log(data))
   .catch(error => console.error('Error:', error));
 ```
 
-### Using Integration Action (Make.com / Integromat)
-Based on the screenshot provided:
+### Using Integration Action (Make.com / Integromat / Assistant Platforms)
+The API now natively supports integration response format! Simply add `&format=integration` to your query.
+
+#### Setup Instructions:
 
 1. **Integration Action Name**: Cargo Tracking
 2. **URL**: `http://localhost:3000/api/track`
 3. **Method**: GET
 4. **Query Params**:
-   - Key: `code`
-   - Value: `CARGO123` (or your dynamic variable)
+   - Key: `code`, Value: `CARGO123` (or your dynamic variable)
+   - Key: `format`, Value: `integration`
 5. **Timeout**: 30 seconds (recommended)
+
+#### Integration Response Format
+The API automatically returns responses in the following format when `format=integration`:
+
+```javascript
+{
+  content: {
+    params: {
+      cargoCode: "CARGO123",
+      status: "In Transit",
+      currentLocation: "Sofia, Bulgaria",
+      estimatedDelivery: "2025-10-25"
+    },
+    modules: [
+      {
+        type: 'MESSAGE',
+        messageType: 'TEXT',
+        payloads: [ /* formatted cargo information */ ]
+      }
+      // ... additional tracking history messages
+    ],
+    fallback: false
+  }
+}
+```
+
+**Response Structure:**
+- `params`: Key-value pairs stored in assistant state (cargoCode, status, currentLocation, estimatedDelivery)
+- `modules`: Array of formatted message objects ready to display to users
+  - `type`: Module type ('MESSAGE')
+  - `messageType`: Type of message ('TEXT', 'IMAGE', 'CARD')
+  - `payloads`: Array containing the formatted message content
+- `fallback`: Boolean to force fallback behavior (always false for successful responses)
+
+**Benefits:**
+- ✅ No custom formatting needed - the API does it automatically
+- ✅ Rich formatted messages with emojis for better readability
+- ✅ Separate messages for summary and each tracking event
+- ✅ Assistant state populated with key tracking information
 
 ---
 

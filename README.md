@@ -23,7 +23,8 @@ npm start
 Once running, try these URLs in your browser:
 
 - **API Info**: http://localhost:3000
-- **Track Cargo**: http://localhost:3000/api/track?code=CARGO123
+- **Track Cargo (Standard)**: http://localhost:3000/api/track?code=CARGO123
+- **Track Cargo (Integration Format)**: http://localhost:3000/api/track?code=CARGO123&format=integration
 - **Health Check**: http://localhost:3000/health
 
 ## Test Cargo Codes
@@ -32,9 +33,19 @@ Once running, try these URLs in your browser:
 - `CARGO456` - Delivered (Paris → London)
 - `CARGO789` - Pending (Amsterdam → Madrid)
 
+## Features
+
+✨ **Dual Response Formats**
+- Standard JSON format for traditional API usage
+- Integration format for chatbots and assistant platforms
+- Automatically formatted messages with emojis
+- State management support for conversational interfaces
+
 ## Documentation
 
-See [docs.md](./docs.md) for complete API documentation.
+- [docs.md](./docs.md) - Complete API documentation
+- [INTEGRATION_EXAMPLES.md](./INTEGRATION_EXAMPLES.md) - Integration platform examples (Make.com, Zapier, Slack, Discord, etc.)
+- [INTEGRATION_SETUP.md](./INTEGRATION_SETUP.md) - Step-by-step integration setup guide
 
 ## Deployment
 
